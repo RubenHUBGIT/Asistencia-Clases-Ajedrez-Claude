@@ -158,5 +158,5 @@ usuario administrador queda marcado para cambiar la contraseña en el primer ini
 - [x] Fase 7 — Asistencia semanal e histórico
 - [x] Fase 8 — Pagos mensuales y resumen
 - [x] Fase 9 — Panel principal y auditoría
-- [ ] Fase 10 — Pruebas automatizadas
+- [x] Fase 10 — Pruebas automatizadas
 - [ ] Fase 11 — QA final y documentación de despliegue
