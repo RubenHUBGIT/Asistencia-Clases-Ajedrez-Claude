@@ -26,7 +26,13 @@ export async function middleware(request: NextRequest) {
 
   // El usuario debe cambiar su contraseña (alta inicial o restablecimiento
   // forzado) antes de poder acceder a cualquier otra parte de la aplicación.
-  if (token.mustChangePassword && pathname !== '/cambiar-password') {
+  // La propia API que efectúa el cambio debe quedar excluida: si no, esta
+  // redirección la intercepta y el formulario recibe HTML en vez de JSON.
+  if (
+    token.mustChangePassword &&
+    pathname !== '/cambiar-password' &&
+    pathname !== '/api/account/change-password'
+  ) {
     return NextResponse.redirect(new URL('/cambiar-password', request.url));
   }
 
