@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/api-auth';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 import { hasSchoolAccess } from '@/lib/school-scope';
 
@@ -52,6 +53,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       ...(guardianEmail !== undefined ? { guardianEmail: guardianEmail || null } : {}),
     },
     include: { group: true, school: { select: { id: true, name: true } } },
+  });
+
+  await logAudit({
+    request,
+    userId: session.user.id,
+    action: 'student.update',
+    entityType: 'Student',
+    entityId: updated.id,
+    before: student,
+    after: updated,
   });
 
   return NextResponse.json({ student: updated });

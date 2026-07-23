@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/api-auth';
+import { logAudit } from '@/lib/audit';
 import { hashPassword } from '@/lib/password';
 import { prisma } from '@/lib/prisma';
 import { ROLE_KEYS, type RoleKey } from '@/lib/permissions';
@@ -75,6 +76,15 @@ export async function POST(request: Request) {
         roles: { create: { roleId: role.id } },
         schools: { create: schoolIds.map((schoolId) => ({ schoolId })) },
       },
+    });
+
+    await logAudit({
+      request,
+      userId: session.user.id,
+      action: 'user.create',
+      entityType: 'User',
+      entityId: user.id,
+      after: { id: user.id, name: user.name, email: user.email, username: user.username, roleKey, schoolIds },
     });
 
     return NextResponse.json(

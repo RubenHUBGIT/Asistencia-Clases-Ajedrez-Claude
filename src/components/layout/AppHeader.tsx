@@ -14,6 +14,7 @@ export async function AppHeader() {
     session.user.permissions.includes('attendance.register') ||
     session.user.permissions.includes('attendance.view_history');
   const canViewPayments = session.user.permissions.includes('payments.view');
+  const canViewAudit = session.user.permissions.includes('audit.view');
 
   return (
     <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
@@ -44,6 +45,11 @@ export async function AppHeader() {
         {canManageUsers && (
           <Link href="/admin/usuarios" className="text-sm text-slate-600 hover:text-brand-600">
             Usuarios
+          </Link>
+        )}
+        {canViewAudit && (
+          <Link href="/auditoria" className="text-sm text-slate-600 hover:text-brand-600">
+            Auditoría
           </Link>
         )}
       </nav>

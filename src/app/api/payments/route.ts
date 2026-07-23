@@ -2,6 +2,7 @@ import { PaymentMethod, PaymentStatus, StudentStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/api-auth';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 import { hasSchoolAccess } from '@/lib/school-scope';
 
@@ -106,6 +107,10 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ message: 'El alumno no pertenece a este colegio.' }, { status: 400 });
   }
 
+  const before = await prisma.monthlyPayment.findUnique({
+    where: { studentId_month_year: { studentId, month, year } },
+  });
+
   const payment = await prisma.monthlyPayment.upsert({
     where: { studentId_month_year: { studentId, month, year } },
     update: {
@@ -126,6 +131,16 @@ export async function PATCH(request: Request) {
       notes: notes || null,
       createdByUserId: session.user.id,
     },
+  });
+
+  await logAudit({
+    request,
+    userId: session.user.id,
+    action: before ? 'payment.update' : 'payment.create',
+    entityType: 'MonthlyPayment',
+    entityId: payment.id,
+    before,
+    after: payment,
   });
 
   return NextResponse.json({ payment });

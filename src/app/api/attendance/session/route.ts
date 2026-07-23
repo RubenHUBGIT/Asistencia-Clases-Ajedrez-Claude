@@ -2,6 +2,7 @@ import { AttendanceStatus, StudentStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireSession } from '@/lib/api-auth';
+import { logAudit } from '@/lib/audit';
 import { parseDateOnly, todayDateOnlyString } from '@/lib/dates';
 import { prisma } from '@/lib/prisma';
 import { hasSchoolAccess } from '@/lib/school-scope';
@@ -133,6 +134,15 @@ export async function POST(request: Request) {
       }),
     ),
   );
+
+  await logAudit({
+    request,
+    userId: session.user.id,
+    action: 'attendance.register_session',
+    entityType: 'AttendanceSession',
+    entityId: `${groupId}:${classDateStr}`,
+    after: { schoolId, groupId, classDate: classDateStr, records },
+  });
 
   return NextResponse.json({ ok: true });
 }

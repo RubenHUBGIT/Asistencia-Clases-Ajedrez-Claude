@@ -2,6 +2,7 @@ import { StudentStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/api-auth';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 import { hasSchoolAccess } from '@/lib/school-scope';
 
@@ -31,6 +32,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const updated = await prisma.student.update({
     where: { id },
     data: { status: parsed.data.status },
+  });
+
+  await logAudit({
+    request,
+    userId: session.user.id,
+    action: 'student.status_change',
+    entityType: 'Student',
+    entityId: updated.id,
+    before: { status: student.status },
+    after: { status: updated.status },
   });
 
   return NextResponse.json({ student: updated });

@@ -2,6 +2,7 @@ import { SchoolStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/api-auth';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/school-scope';
 
@@ -59,5 +60,15 @@ export async function POST(request: Request) {
   const school = await prisma.school.create({
     data: { ...rest, contactEmail: contactEmail || null },
   });
+
+  await logAudit({
+    request,
+    userId: session.user.id,
+    action: 'school.create',
+    entityType: 'School',
+    entityId: school.id,
+    after: school,
+  });
+
   return NextResponse.json({ school }, { status: 201 });
 }

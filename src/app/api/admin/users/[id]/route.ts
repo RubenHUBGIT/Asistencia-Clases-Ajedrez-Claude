@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/api-auth';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 import { ALL_PERMISSION_KEYS, DEFAULT_ROLE_PERMISSIONS, ROLE_KEYS, type RoleKey } from '@/lib/permissions';
 
@@ -103,6 +104,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     }
     throw error;
   }
+
+  await logAudit({
+    request,
+    userId: session.user.id,
+    action: 'user.update',
+    entityType: 'User',
+    entityId: id,
+    before: { name: existing.name, email: existing.email, username: existing.username, isActive: existing.isActive },
+    after: payload,
+  });
 
   return NextResponse.json({ message: 'Usuario actualizado correctamente.' });
 }

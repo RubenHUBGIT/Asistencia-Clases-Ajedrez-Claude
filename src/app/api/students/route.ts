@@ -2,6 +2,7 @@ import { StudentStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/api-auth';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 import { hasSchoolAccess, isAdmin } from '@/lib/school-scope';
 
@@ -104,6 +105,15 @@ export async function POST(request: Request) {
       guardianEmail: guardianEmail || null,
     },
     include: { group: true, school: { select: { id: true, name: true } } },
+  });
+
+  await logAudit({
+    request,
+    userId: session.user.id,
+    action: 'student.create',
+    entityType: 'Student',
+    entityId: student.id,
+    after: student,
   });
 
   return NextResponse.json({ student }, { status: 201 });
