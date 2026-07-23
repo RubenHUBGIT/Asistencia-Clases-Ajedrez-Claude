@@ -153,7 +153,7 @@ usuario administrador queda marcado para cambiar la contraseña en el primer ini
 - [x] Fase 2 — Esquema de base de datos, migraciones y seed
 - [x] Fase 3 — Autenticación
 - [x] Fase 4 — Roles y permisos, gestión de usuarios
-- [ ] Fase 5 — Colegios
+- [x] Fase 5 — Colegios
 - [ ] Fase 6 — Alumnos
 - [ ] Fase 7 — Asistencia semanal e histórico
 - [ ] Fase 8 — Pagos mensuales y resumen

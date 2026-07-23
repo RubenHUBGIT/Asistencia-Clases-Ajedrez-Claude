@@ -8,6 +8,7 @@ export async function AppHeader() {
   if (!session?.user) return null;
 
   const canManageUsers = session.user.permissions.includes('users.manage');
+  const canViewSchools = session.user.permissions.includes('schools.view');
 
   return (
     <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
@@ -15,6 +16,11 @@ export async function AppHeader() {
         <Link href="/" className="text-sm font-semibold text-brand-700">
           Asistencia Ajedrez
         </Link>
+        {canViewSchools && (
+          <Link href="/colegios" className="text-sm text-slate-600 hover:text-brand-600">
+            Colegios
+          </Link>
+        )}
         {canManageUsers && (
           <Link href="/admin/usuarios" className="text-sm text-slate-600 hover:text-brand-600">
             Usuarios
