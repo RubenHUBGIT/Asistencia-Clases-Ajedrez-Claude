@@ -147,6 +147,39 @@ usuario administrador queda marcado para cambiar la contraseña en el primer ini
 | `npm run prisma:studio` | Explorador visual de la base de datos |
 | `npm run db:seed` | Carga los datos iniciales/demo |
 
+## Pruebas automatizadas
+
+Las pruebas usan Vitest + Testing Library (`npm run test`) y no requieren una
+base de datos disponible: la lógica dependiente de Prisma se prueba mockeando
+el cliente (`vi.mock('@/lib/prisma')`). Cobertura actual:
+
+- `tests/lib/permissions.test.ts` — claves de permisos y permisos por defecto de cada rol.
+- `tests/lib/school-scope.test.ts` — `isAdmin` y `hasSchoolAccess`.
+- `tests/lib/rbac.test.ts` — fusión de permisos de rol con las sobrescrituras (`UserPermission`) en `loadAuthorizedUser`, con Prisma mockeado.
+- `tests/lib/password.test.ts` — hashing/verificación de contraseñas y política de fortaleza.
+- `tests/lib/tokens.test.ts` — generación y verificación de tokens de restablecimiento y contraseñas temporales.
+- `tests/lib/dates.test.ts` — utilidades de fecha usadas en asistencia/pagos.
+- `tests/lib/login-rate-limit.test.ts` — extracción de la IP del cliente a partir de cabeceras.
+- `tests/components/LoginForm.test.tsx` — validación de campos y flujo de envío del formulario de login.
+
+## Despliegue en producción
+
+Además de los pasos de "Ejecución con Docker Compose", antes de exponer la
+aplicación en producción:
+
+- Define `NEXTAUTH_URL` con el dominio público real (con HTTPS) y un
+  `NEXTAUTH_SECRET` propio y aleatorio; no reutilices los valores de ejemplo.
+- Sirve la aplicación detrás de un proxy inverso con TLS (Nginx, Caddy, Traefik, etc.);
+  la app en sí no termina HTTPS.
+- Configura las variables `SMTP_*` para el envío real de correos de
+  restablecimiento de contraseña (en producción no se muestra el enlace en pantalla ni en consola).
+- Define credenciales propias de `ADMIN_EMAIL`/`ADMIN_USERNAME`/`ADMIN_PASSWORD`
+  antes de ejecutar el seed inicial; nunca uses los valores de `.env.example`.
+- Realiza copias de seguridad periódicas del volumen de PostgreSQL (`db_data`
+  en `docker-compose.yml`, o el almacenamiento equivalente si usas otro despliegue).
+- Aplica migraciones con `npm run prisma:migrate:deploy` (o el `prisma migrate deploy`
+  automático del contenedor `app`), nunca con `prisma migrate dev` en producción.
+
 ## Roadmap
 
 - [x] Fase 1 — Scaffolding del proyecto
@@ -159,4 +192,4 @@ usuario administrador queda marcado para cambiar la contraseña en el primer ini
 - [x] Fase 8 — Pagos mensuales y resumen
 - [x] Fase 9 — Panel principal y auditoría
 - [x] Fase 10 — Pruebas automatizadas
-- [ ] Fase 11 — QA final y documentación de despliegue
+- [x] Fase 11 — QA final y documentación de despliegue
