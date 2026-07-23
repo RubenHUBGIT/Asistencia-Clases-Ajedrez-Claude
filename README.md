@@ -19,9 +19,12 @@ Estado: en construcción por fases (ver [Roadmap](#roadmap)).
 
 Estas decisiones se han tomado por ser razonables, seguras y sencillas para una primera versión:
 
-- **Sesiones en base de datos (NextAuth) en lugar de JWT propio**: evita implementar
-  manualmente rotación/expiración de tokens y permite revocar sesiones cerrando sesión
-  o desactivando el usuario.
+- **Sesiones JWT (NextAuth) en lugar de sesiones en base de datos**: el proveedor de
+  credenciales de NextAuth v4 solo admite `session.strategy = "jwt"` (no puede
+  delegar la persistencia de sesión en el adapter). El token incluye roles,
+  permisos y colegios asignados, y se recalculan en cada petición contra la base
+  de datos para que los cambios de un administrador (revocar permisos, desactivar
+  usuario) tengan efecto de forma inmediata sin esperar a que expire el token.
 - **Restablecimiento de contraseña sin proveedor de email obligatorio**: se genera un
   token de un solo uso con expiración (`PasswordResetToken`). Si no hay `SMTP_*`
   configurado, el enlace se muestra en la respuesta/consola solo en `NODE_ENV=development`;
@@ -148,7 +151,7 @@ usuario administrador queda marcado para cambiar la contraseña en el primer ini
 
 - [x] Fase 1 — Scaffolding del proyecto
 - [x] Fase 2 — Esquema de base de datos, migraciones y seed
-- [ ] Fase 3 — Autenticación
+- [x] Fase 3 — Autenticación
 - [ ] Fase 4 — Roles y permisos, gestión de usuarios
 - [ ] Fase 5 — Colegios
 - [ ] Fase 6 — Alumnos
