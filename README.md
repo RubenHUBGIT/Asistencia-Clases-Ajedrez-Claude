@@ -147,7 +147,7 @@ usuario administrador queda marcado para cambiar la contraseña en el primer ini
 ## Roadmap
 
 - [x] Fase 1 — Scaffolding del proyecto
-- [ ] Fase 2 — Esquema de base de datos, migraciones y seed
+- [x] Fase 2 — Esquema de base de datos, migraciones y seed
 - [ ] Fase 3 — Autenticación
 - [ ] Fase 4 — Roles y permisos, gestión de usuarios
 - [ ] Fase 5 — Colegios
