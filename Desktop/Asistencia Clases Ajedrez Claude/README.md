@@ -1,1 +1,0 @@
-# Asistencia Clases Ajedrez Claude
