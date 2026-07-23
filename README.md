@@ -155,7 +155,7 @@ usuario administrador queda marcado para cambiar la contraseña en el primer ini
 - [x] Fase 4 — Roles y permisos, gestión de usuarios
 - [x] Fase 5 — Colegios
 - [x] Fase 6 — Alumnos
-- [ ] Fase 7 — Asistencia semanal e histórico
+- [x] Fase 7 — Asistencia semanal e histórico
 - [ ] Fase 8 — Pagos mensuales y resumen
 - [ ] Fase 9 — Panel principal y auditoría
 - [ ] Fase 10 — Pruebas automatizadas
