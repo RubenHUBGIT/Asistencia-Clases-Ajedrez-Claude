@@ -18,6 +18,9 @@ export const PERMISSIONS = [
 
   { key: 'users.manage', description: 'Administrar usuarios, roles y permisos' },
   { key: 'audit.view', description: 'Consultar el registro de auditoria' },
+
+  { key: 'inventory.view', description: 'Ver el inventario de material' },
+  { key: 'inventory.manage', description: 'Crear, editar y archivar material del inventario' },
 ] as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[number]['key'];
@@ -45,6 +48,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     'students.edit',
     'attendance.register',
     'attendance.view_history',
+    'inventory.view',
   ],
 };
 

@@ -294,10 +294,14 @@ function EditUserForm({
   isSelf: boolean;
   onSaved: (message: string) => void;
 }) {
+  const [name, setName] = useState(user.name);
+  const [email, setEmail] = useState(user.email);
+  const [username, setUsername] = useState(user.username);
   const [roleKey, setRoleKey] = useState<RoleKey>(user.roleKey ?? ROLE_KEYS.TEACHER);
   const [isActive, setIsActive] = useState(user.isActive);
   const [schoolIds, setSchoolIds] = useState<string[]>(user.schoolIds);
   const [permissions, setPermissions] = useState<Set<PermissionKey>>(effectivePermissionsOf(user));
+  const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -311,9 +315,13 @@ function EditUserForm({
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        name,
+        email,
+        username,
         ...(isSelf ? {} : { roleKey, isActive }),
         schoolIds,
         effectivePermissions: Array.from(permissions),
+        ...(newPassword ? { newPassword } : {}),
       }),
     });
     const data = (await response.json()) as { message: string };
@@ -324,6 +332,7 @@ function EditUserForm({
       return;
     }
 
+    setNewPassword('');
     onSaved('Usuario actualizado correctamente.');
   }
 
@@ -347,6 +356,34 @@ function EditUserForm({
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
+        <label className="flex flex-col gap-1 text-sm text-slate-700">
+          Nombre
+          <input
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-slate-700">
+          Email
+          <input
+            required
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm text-slate-700">
+          Usuario
+          <input
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+          />
+        </label>
         <label className="flex flex-col gap-1 text-sm text-slate-700">
           Rol
           <select
@@ -420,6 +457,24 @@ function EditUserForm({
             </label>
           ))}
         </div>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-1">
+        <legend className="text-sm text-slate-700">Contraseña</legend>
+        <label className="flex flex-col gap-1 text-sm text-slate-700 sm:max-w-xs">
+          Establecer nueva contraseña directamente (opcional)
+          <input
+            type="text"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="Dejar en blanco para no cambiarla"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+          />
+        </label>
+        <p className="text-xs text-slate-500">
+          Mínimo 8 caracteres, con letras y números. Al guardar, el usuario deberá cambiarla en su próximo
+          inicio de sesión.
+        </p>
       </fieldset>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

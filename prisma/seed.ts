@@ -300,6 +300,38 @@ async function main() {
     }
   }
 
+  console.log('Sembrando categorías e inventario de material...');
+  const inventoryCategoryNames = ['Piezas', 'Tableros', 'Relojes', 'Libros y material didáctico', 'Otros'];
+  const inventoryCategories = new Map<string, { id: string }>();
+  for (const name of inventoryCategoryNames) {
+    const category = await prisma.inventoryCategory.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+    inventoryCategories.set(name, category);
+  }
+
+  const inventoryItemSeeds = [
+    { id: 'seed-inventory-piezas-lorca', name: 'Juegos de piezas de ajedrez', category: 'Piezas', quantity: 15, holder: schoolAlpha.name },
+    { id: 'seed-inventory-tableros-lorca', name: 'Tableros plegables', category: 'Tableros', quantity: 15, holder: schoolAlpha.name },
+    { id: 'seed-inventory-relojes-cervantes', name: 'Relojes de ajedrez digitales', category: 'Relojes', quantity: 6, holder: schoolBeta.name },
+    { id: 'seed-inventory-libros', name: 'Cuadernos de ejercicios tácticos', category: 'Libros y material didáctico', quantity: 20, holder: 'Almacén' },
+  ];
+  for (const item of inventoryItemSeeds) {
+    await prisma.inventoryItem.upsert({
+      where: { id: item.id },
+      update: {},
+      create: {
+        id: item.id,
+        name: item.name,
+        categoryId: inventoryCategories.get(item.category)!.id,
+        quantity: item.quantity,
+        holder: item.holder,
+      },
+    });
+  }
+
   console.log('Seed completado.');
 }
 

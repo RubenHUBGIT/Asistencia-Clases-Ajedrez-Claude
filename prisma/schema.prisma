@@ -335,3 +335,42 @@ model AuditLog {
   @@index([userId])
   @@index([createdAt])
 }
+
+// ---------------------------------------------------------------------------
+// Inventario de material (piezas, tableros, relojes, etc.)
+// ---------------------------------------------------------------------------
+
+enum InventoryStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+// Categoría de material. Se parte de una lista predefinida (ver seed), pero
+// cualquier usuario con permiso inventory.manage puede añadir nuevas.
+model InventoryCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  items InventoryItem[]
+
+  @@index([name])
+}
+
+model InventoryItem {
+  id         String            @id @default(cuid())
+  name       String
+  categoryId String
+  quantity   Int               @default(1)
+  holder     String?
+  notes      String?
+  status     InventoryStatus   @default(ACTIVE)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  category InventoryCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([name])
+}

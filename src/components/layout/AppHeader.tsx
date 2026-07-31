@@ -14,6 +14,7 @@ export async function AppHeader() {
     session.user.permissions.includes('attendance.register') ||
     session.user.permissions.includes('attendance.view_history');
   const canViewPayments = session.user.permissions.includes('payments.view');
+  const canViewInventory = session.user.permissions.includes('inventory.view');
   const canViewAudit = session.user.permissions.includes('audit.view');
 
   return (
@@ -40,6 +41,11 @@ export async function AppHeader() {
         {canViewPayments && (
           <Link href="/pagos" className="text-sm text-slate-600 hover:text-brand-600">
             Pagos
+          </Link>
+        )}
+        {canViewInventory && (
+          <Link href="/inventario" className="text-sm text-slate-600 hover:text-brand-600">
+            Inventario
           </Link>
         )}
         {canManageUsers && (

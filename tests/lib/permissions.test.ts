@@ -20,6 +20,7 @@ describe('permissions', () => {
     expect(teacherPermissions).not.toContain('students.delete');
     expect(teacherPermissions).not.toContain('schools.delete');
     expect(teacherPermissions).not.toContain('attendance.edit_past');
+    expect(teacherPermissions).not.toContain('inventory.manage');
   });
 
   it('grants the teacher role basic school/student/attendance access', () => {
@@ -28,5 +29,6 @@ describe('permissions', () => {
     expect(teacherPermissions).toContain('students.view');
     expect(teacherPermissions).toContain('attendance.register');
     expect(teacherPermissions).toContain('attendance.view_history');
+    expect(teacherPermissions).toContain('inventory.view');
   });
 });

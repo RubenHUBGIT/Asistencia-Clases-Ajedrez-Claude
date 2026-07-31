@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/api-auth';
 import { logAudit } from '@/lib/audit';
+import { hashPassword, isPasswordStrongEnough } from '@/lib/password';
 import { prisma } from '@/lib/prisma';
 import { ALL_PERMISSION_KEYS, DEFAULT_ROLE_PERMISSIONS, ROLE_KEYS, type RoleKey } from '@/lib/permissions';
 
@@ -20,6 +21,10 @@ const updateUserSchema = z.object({
   roleKey: z.enum(roleKeys).optional(),
   schoolIds: z.array(z.string()).optional(),
   effectivePermissions: z.array(z.string()).optional(),
+  // Permite al administrador fijar directamente una nueva contraseña para otro
+  // usuario, como alternativa al enlace de restablecimiento por email. El
+  // usuario deberá cambiarla en su próximo inicio de sesión.
+  newPassword: z.string().optional(),
 });
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -43,6 +48,13 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     );
   }
 
+  if (payload.newPassword !== undefined && !isPasswordStrongEnough(payload.newPassword)) {
+    return NextResponse.json(
+      { message: 'La contraseña debe tener al menos 8 caracteres, con letras y números.' },
+      { status: 400 },
+    );
+  }
+
   const existing = await prisma.user.findUnique({
     where: { id },
     include: { roles: { include: { role: true } } },
@@ -50,6 +62,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   if (!existing) {
     return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
   }
+
+  const newPasswordHash = payload.newPassword ? await hashPassword(payload.newPassword) : undefined;
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -60,6 +74,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
           ...(payload.email !== undefined ? { email: payload.email.toLowerCase() } : {}),
           ...(payload.username !== undefined ? { username: payload.username } : {}),
           ...(payload.isActive !== undefined ? { isActive: payload.isActive } : {}),
+          ...(newPasswordHash !== undefined ? { passwordHash: newPasswordHash, mustChangePassword: true } : {}),
         },
       });
 
@@ -105,6 +120,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     throw error;
   }
 
+  // No se registra nunca la contraseña en texto plano en el log de auditoría.
+  const { newPassword, ...auditablePayload } = payload;
+  void newPassword;
+
   await logAudit({
     request,
     userId: session.user.id,
@@ -112,8 +131,18 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     entityType: 'User',
     entityId: id,
     before: { name: existing.name, email: existing.email, username: existing.username, isActive: existing.isActive },
-    after: payload,
+    after: auditablePayload,
   });
+
+  if (newPasswordHash !== undefined) {
+    await logAudit({
+      request,
+      userId: session.user.id,
+      action: 'user.set_password',
+      entityType: 'User',
+      entityId: id,
+    });
+  }
 
   return NextResponse.json({ message: 'Usuario actualizado correctamente.' });
 }

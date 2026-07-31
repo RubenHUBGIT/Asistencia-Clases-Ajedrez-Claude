@@ -12,7 +12,15 @@ type AuditLogEntry = {
   user: { id: string; name: string; email: string } | null;
 };
 
-const ENTITY_TYPES = ['School', 'Student', 'AttendanceSession', 'MonthlyPayment', 'User'];
+const ENTITY_TYPES = [
+  'School',
+  'Student',
+  'AttendanceSession',
+  'MonthlyPayment',
+  'User',
+  'InventoryItem',
+  'InventoryCategory',
+];
 
 export function AuditLogPanel() {
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
