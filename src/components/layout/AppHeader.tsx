@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -20,8 +21,9 @@ export async function AppHeader() {
   return (
     <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
       <nav className="flex items-center gap-4">
-        <Link href="/" className="text-sm font-semibold text-brand-700">
-          Asistencia Ajedrez
+        <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-brand-700">
+          <Image src="/logo-caa.png" alt="Club Aranjuez de Ajedrez" width={32} height={32} className="h-8 w-8" priority />
+          <span className="hidden sm:inline">Club Aranjuez de Ajedrez</span>
         </Link>
         {canViewSchools && (
           <Link href="/colegios" className="text-sm text-slate-600 hover:text-brand-600">

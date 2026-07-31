@@ -4,13 +4,20 @@ import type { NextRequest } from 'next/server';
 
 const PUBLIC_PATHS = ['/login', '/recuperar-password', '/restablecer-password'];
 
+// Ficheros estáticos servidos desde /public (logos, favicon, robots.txt...).
+// Deben quedar accesibles sin sesión: el propio optimizador de imágenes de
+// Next hace una petición interna sin cookies para leerlos, y además la
+// pantalla de login necesita poder mostrar el logo antes de autenticarse.
+const STATIC_ASSET_PATTERN = /\.(png|jpg|jpeg|svg|webp|ico|gif|txt|xml|json|woff2?)$/i;
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isPublic =
     PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`)) ||
     pathname.startsWith('/api/auth') ||
-    pathname.startsWith('/api/health');
+    pathname.startsWith('/api/health') ||
+    STATIC_ASSET_PATTERN.test(pathname);
 
   if (isPublic) {
     return NextResponse.next();

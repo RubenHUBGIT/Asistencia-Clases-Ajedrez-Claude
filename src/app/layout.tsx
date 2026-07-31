@@ -4,8 +4,8 @@ import { SessionProvider } from '@/components/providers/SessionProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Asistencia Ajedrez',
-  description: 'Gestión de asistencia y pagos de clases de ajedrez en colegios',
+  title: 'Club Aranjuez de Ajedrez · Asistencia',
+  description: 'Gestión de asistencia y pagos de las clases de ajedrez del Club Aranjuez de Ajedrez',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
